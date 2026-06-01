@@ -1,0 +1,83 @@
+,
+,創業計画書：技術駆動型ローカルITインフラ支援事業
+,1. 事業目的および概要
+,
+,倉敷市周辺の中小企業・小規模事業者を対象に、オフィスのネットワーク配線整備から、Pythonによる業務自動化、AWSを活用したデータ保全までを一括して提供するITインフラ支援事業。 最大の特徴は、インフラ構成を「IaC（Infrastructure as Code）」としてテンプレート化し、生成AIを用いた自動静的解析（tflint/tfsec）を組み込む点にある。これにより、個人事業でありながら大手水準のセキュリティと短納期を両立し、地域企業のデジタル債務を解消する。
+,
+,2. 経営者の持続可能性と健康管理（長期就業の合理的背景）
+,
+,カウンセラーが重視する「事業の継続性」について、私の就業能力の持続性は以下の合理的ファクトに基づいている。
+,
+,長期就業を可能にする血統的背景: 一時的な健康ブランク期間はあるが、これは次段階への準備期間である。私の家系（曾祖父・父の代）は非常に頑健であり、生涯現役で長期就業を全うした実績がある。この受け継いだ強固な長寿のDNAを背景に、今後長期にわたって地域社会に現役で貢献し、安定した事業運営を継続する資質が備わっている。
+,
+,技術的な負荷コントロール: 自社で物理サーバーを抱えず、システム維持をAWSのマネージドサービス（クラウド）に委ねることで、24時間365日の突発的な障害対応（夜間呼び出し等）のリスクを技術的に排除。体調（術後管理を含む）に無理のない「低速・安定モード」でのスマートな運営を可能にしている。
+,3. 提供サービスと技術的裏付け（ソースコード構造）
+,【システム基本構造】
+,Plaintext
+,kurashiki-it-support/
+,├── infrastructure/          # AWSインフラ（IaC管理）
+,│   ├── main.tf              # VPC・セキュリティグループ定義
+,│   ├── provider.tf
+,│   └── variables.tf
+,├── automation-scripts/      # 顧客向けPython自動化ツール
+,│   ├── config.ini           # 環境設定ファイル
+,│   ├── file_processor.py    # 泥臭い手作業（ファイル集計・転送）の自動化
+,│   └── requirements.txt
+,└── security-check/          # 自動セキュリティ診断
+,└── run_analysis.sh      # tfsec/tflintの一括実行スクリプト
+,【コア・コード実装】
+,① AWSインフラ（安全なデータ隔離空間の構築：main.tf）
+,Terraform
+,# 倉敷のローカル企業向けに最適化したセキュアVPC
+,"resource ""aws_vpc"" ""client_vpc"" {"
+,"cidr_block           = ""10.0.0.0/16"""
+,enable_dns_hostnames = true
+,tags = {
+,"Name = ""kurashiki-client-network"""
+,}
+,}
+,# 外部からの不正アクセスを遮断するセキュリティグループ（ACL/ファイアウォール）
+,"resource ""aws_security_group"" ""secure_gate"" {"
+,"name        = ""client-secure-gate"""
+,vpc_id      = aws_vpc.client_vpc.id
+,# 特定IPからの接続のみを許可（リモート伴走用）
+,ingress {
+,from_port   = 443
+,to_port     = 443
+,"protocol    = ""tcp"""
+,cidr_blocks = [var.trusted_ip]
+,}
+,egress {
+,from_port   = 0
+,to_port     = 0
+,"protocol    = ""-1"""
+,"cidr_blocks = [""0.0.0.0/32""] # 徹底したアウトバウンド制限"
+,}
+,}
+,② Pythonによる業務自動化（事務作業のワンクリック化：file_processor.py）
+,Python
+,import os
+,import shutil
+,import glob
+,from datetime import datetime
+,"def automate_office_work(source_dir, target_dir):"
+,""""""""
+,顧客の特定フォルダを監視し、本日の日付ごとに書類を自動分類・バックアップする
+,""""""""
+,today_str = datetime.now().strftime('%Y-%m-%d')
+,"destination = os.path.join(target_dir, today_str)"
+,if not os.path.exists(destination):
+,os.makedirs(destination)
+,"for file_path in glob.glob(os.path.join(source_dir, '*.*')):"
+,try:
+,"shutil.move(file_path, destination)"
+,"print(f""[SUCCESS] Moved: {os.path.basename(file_path)}"")"
+,except Exception as e:
+,"print(f""[ERROR] Failed to move {file_path}: {e}"")"
+,"if __name__ == ""__main__"":"
+,"automate_office_work(""./Desktop/Input_Data"", ""./Secure_Backup"")"
+,4. ビジネスモデルと収益モデル
+,
+,初期（スポット収入）: ネットワーク配線整備およびクラウド（AWS）初期構築による受託開発。
+,
+,継続（ストック収入）: 構築した自動化プログラムのライセンス維持、およびネットワーク保守に伴う月額定額保守（サブスクリプション型）。自身の稼働を切り売りせず、システムが安定を生む構造を担保する。
