@@ -1,5 +1,1 @@
-# プロジェクト提出データ (20260601)
-
-先生、最新のスプレッドシートデータは以下のリンクから直接ご覧いただけます。
-
-* [📊 提出データ（表計算ファイル）はこちらをクリックして確認](20260601.csv)
+<img width="1920" height="1080" alt="shigeo_kurashiki_shian" src="https://github.com/user-attachments/assets/07a1fe09-d700-4d53-962d-a84787fc4cba" />
